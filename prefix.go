@@ -16,15 +16,17 @@ func newPrefix(prefix []string, lg *Logger) *Prefix {
 
 func (p *Prefix) AppendPrefix(prefix string) {
 	old := strings.Split(p.prefix[len(P_STAR):len(p.prefix)-len(P_END)], P_SEPE)
+	old = cleanEmptyPrefixSlice(old)
 	p.prefix = P_STAR + strings.Join(append(old, prefix), P_SEPE) + P_END
 }
 
 func (p *Prefix) PrependPrefix(prefix string) {
 	old := strings.Split(p.prefix[len(P_STAR):len(p.prefix)-len(P_END)], P_SEPE)
+	old = cleanEmptyPrefixSlice(old)
 	p.prefix = P_STAR + strings.Join(append([]string{prefix}, old...), P_SEPE) + P_END
 }
 
-func (p *Prefix) CleanPrefix(prefix string) {
+func (p *Prefix) CleanPrefix() {
 	p.prefix = P_STAR + P_END
 }
 
@@ -50,4 +52,14 @@ func (p *Prefix) Error(s string, args ...interface{}) error {
 
 func (p *Prefix) Critical(s string, args ...interface{}) {
 	p.lg.Trace(p.prefix+s, args...)
+}
+
+func cleanEmptyPrefixSlice(s []string) []string {
+	r := []string{}
+	for _, v := range s {
+		if v != "" {
+			r = append(r, v)
+		}
+	}
+	return r
 }
