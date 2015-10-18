@@ -31,7 +31,12 @@ var (
 )
 
 func init() {
-	root.AddWriter(os.Stdout, L_TRACE, W_BOTH)
+	root.AddWriter(os.Stdout, L_TRACE, W_INFO)
+	root.AddWriter(os.Stderr, L_TRACE, W_ERROR)
+}
+
+func DefaultLogger() *Logger {
+	return root
 }
 
 func Trace(s string, args ...interface{}) {
