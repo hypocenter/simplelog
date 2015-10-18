@@ -24,17 +24,9 @@ func (w *writer) write(l *log) {
 	if l.level >= w.level {
 		switch l.level {
 		case L_TRACE, L_DEBUG, L_INFO, L_WARNING, L_ERROR:
-			if len(l.args) > 0 {
-				w.lg.Printf(l.str, l.args)
-			} else {
-				w.lg.Printf(l.str)
-			}
+			w.lg.Print(l.output())
 		case L_CRITICAL:
-			if len(l.args) > 0 {
-				w.lg.Fatalf(l.str, l.args)
-			} else {
-				w.lg.Fatalf(l.str)
-			}
+			w.lg.Fatal(l.output())
 		default:
 			return
 		}

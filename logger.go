@@ -49,21 +49,15 @@ func (lg *Logger) Info(s string, args ...interface{}) {
 }
 
 func (lg *Logger) Warning(s string, args ...interface{}) error {
-	lg.in <- &log{s, args, L_WARNING}
-	if len(args) > 0 {
-		return fmt.Errorf(s, args)
-	} else {
-		return fmt.Errorf(s)
-	}
+	l := &log{s, args, L_WARNING}
+	lg.in <- l
+	return fmt.Errorf(l.output())
 }
 
 func (lg *Logger) Error(s string, args ...interface{}) error {
-	lg.in <- &log{s, args, L_ERROR}
-	if len(args) > 0 {
-		return fmt.Errorf(s, args)
-	} else {
-		return fmt.Errorf(s)
-	}
+	l := &log{s, args, L_ERROR}
+	lg.in <- l
+	return fmt.Errorf(l.output())
 }
 
 func (lg *Logger) Critical(s string, args ...interface{}) {
