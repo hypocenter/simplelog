@@ -26,11 +26,12 @@ const (
 )
 
 var (
-	root = New()
+	root            = New()
+	loggerContainer []*Logger
 )
 
 func init() {
-	root.AddWriter(os.Stdout, L_TRACE)
+	root.AddWriter(os.Stdout, L_TRACE, W_BOTH)
 }
 
 func Trace(s string, args ...interface{}) {
@@ -55,4 +56,20 @@ func Error(s string, args ...interface{}) error {
 
 func Critical(s string, args ...interface{}) {
 	root.Critical(s, args...)
+}
+
+// Flash 在main.main中通过defer调用，保证所有通道里面的日志都完整输出
+func Flush() {
+	for {
+		for _, lg := range loggerContainer {
+			for {
+				if len(lg.in) > 0 {
+					continue
+				}
+				// close(lg.in)
+				break
+			}
+		}
+		break
+	}
 }

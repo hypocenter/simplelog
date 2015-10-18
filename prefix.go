@@ -10,17 +10,17 @@ type Prefix struct {
 }
 
 func newPrefix(prefix []string, lg *Logger) *Prefix {
-	p := P_STAR + strings.Join(prefix, P_SEPE) + "P_END"
-	return &Prefix{prefix: p, lg.Logger}
+	p := P_STAR + strings.Join(prefix, P_SEPE) + P_END
+	return &Prefix{prefix: p, lg: lg}
 }
 
 func (p *Prefix) AppendPrefix(prefix string) {
-	old := strings.Split(p.prefix[len(P_STAR):-len(P_END)], P_SEPE)
+	old := strings.Split(p.prefix[len(P_STAR):len(p.prefix)-len(P_END)], P_SEPE)
 	p.prefix = P_STAR + strings.Join(append(old, prefix), P_SEPE) + P_END
 }
 
 func (p *Prefix) PrependPrefix(prefix string) {
-	old := strings.Split(p.prefix[len(P_STAR):-len(P_END)], P_SEPE)
+	old := strings.Split(p.prefix[len(P_STAR):len(p.prefix)-len(P_END)], P_SEPE)
 	p.prefix = P_STAR + strings.Join(append([]string{prefix}, old...), P_SEPE) + P_END
 }
 

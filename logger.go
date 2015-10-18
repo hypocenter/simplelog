@@ -7,27 +7,28 @@ import (
 )
 
 type Logger struct {
-	pool []*logger
-	in   chan []*log
-	stop chan bool
+	pool []*writer
+	in   chan *log
 }
 
 func New() *Logger {
-	l := &Logger{in: make(chan *log, 20)}
-	go l.flush()
+	lg := &Logger{in: make(chan *log, 20)}
+	go lg.flush()
+	loggerContainer = append(loggerContainer, lg)
+	return lg
 }
 
 func (lg *Logger) flush() {
-	for l := range lg.args {
-		for w := range lg.pool {
+	for l := range lg.in {
+		for _, w := range lg.pool {
 			w.write(l)
 		}
 	}
 }
 
 func (lg *Logger) AddWriter(w io.Writer, level int, way int) {
-	wt := slog.New(w, "", slog.LstdFlags)
-	lgw := &logger{l: wt, level: level, way}
+	slg := slog.New(w, "", slog.LstdFlags)
+	lgw := &writer{lg: slg, level: level, way: way}
 	lg.pool = append(lg.pool, lgw)
 }
 
@@ -49,25 +50,22 @@ func (lg *Logger) Info(s string, args ...interface{}) {
 
 func (lg *Logger) Warning(s string, args ...interface{}) error {
 	lg.in <- &log{s, args, L_WARNING}
-	return fmt.Errorf(s, args)
+	if len(args) > 0 {
+		return fmt.Errorf(s, args)
+	} else {
+		return fmt.Errorf(s)
+	}
 }
 
 func (lg *Logger) Error(s string, args ...interface{}) error {
 	lg.in <- &log{s, args, L_ERROR}
-	return fmt.Errorf(s, args)
+	if len(args) > 0 {
+		return fmt.Errorf(s, args)
+	} else {
+		return fmt.Errorf(s)
+	}
 }
 
 func (lg *Logger) Critical(s string, args ...interface{}) {
 	lg.in <- &log{s, args, L_CRITICAL}
-}
-
-// Flash 在main.main中通过defer调用，保证所有通道里面的日志都完整输出
-func (lg *Logger) Flush() {
-	for {
-		if len(lg.logs) > 0 {
-			continue
-		}
-		close(lg.logs)
-		break
-	}
 }
