@@ -3,6 +3,7 @@ package simplelog
 import (
 	"bytes"
 	"io"
+	"strings"
 	"testing"
 	"time"
 )
@@ -200,7 +201,45 @@ func TestCustomLogPrefix(t *testing.T) {
 	if string(res) != expect {
 		t.Errorf("Logger wrote wrong prefix expect '%s' got '%s'", expect, res)
 	}
+}
 
+func TestCustomLogPrefixOpreation(t *testing.T) {
+	buf := &bytes.Buffer{}
+	logger := New()
+	logger.AddWriter(buf, L_TRACE, W_BOTH)
+	l := logger.Prefixed([]string{"HYPO"})
+	jp := func(s []string) string {
+		return P_STAR + strings.Join(s, P_SEPE) + P_END
+	}
+	if l.prefix != jp([]string{"HYPO"}) {
+		t.Errorf("Prefix generated wrong prefix expect '%s' got '%s'", jp([]string{"HYPO"}), l.prefix)
+	}
+
+	l.AppendPrefix("CINDY")
+	if l.prefix != jp([]string{"HYPO", "CINDY"}) {
+		t.Errorf("Prefix generated wrong prefix got '%s'", l.prefix)
+	}
+
+	l.PrependPrefix("HU")
+	if l.prefix != jp([]string{"HU", "HYPO", "CINDY"}) {
+		t.Errorf("Prefix generated wrong prefix got '%s'", l.prefix)
+	}
+
+	l.CleanPrefix()
+	if l.prefix != jp([]string{""}) {
+		t.Errorf("Prefix generated wrong prefix got '%s'", l.prefix)
+	}
+
+	l.PrependPrefix("HYPO")
+	if l.prefix != jp([]string{"HYPO"}) {
+		t.Errorf("Prefix generated wrong prefix got '%s'", l.prefix)
+	}
+
+	l.CleanPrefix()
+	l.AppendPrefix("HYPO")
+	if l.prefix != jp([]string{"HYPO"}) {
+		t.Errorf("Prefix generated wrong prefix got '%s'", l.prefix)
+	}
 }
 
 func TestMuiltLogger(t *testing.T) {
