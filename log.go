@@ -31,7 +31,7 @@ func (l *log) output() string {
 	}
 
 	if len(l.args) > 0 {
-		str = fmt.Sprintf(str, l.args) + "\n"
+		str = fmt.Sprintf(str, l.args...) + "\n"
 	}
 
 	return str
