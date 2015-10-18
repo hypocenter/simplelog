@@ -60,16 +60,7 @@ func Critical(s string, args ...interface{}) {
 
 // Flash 在main.main中通过defer调用，保证所有通道里面的日志都完整输出
 func Flush() {
-	for {
-		for _, lg := range loggerContainer {
-			for {
-				if len(lg.in) > 0 {
-					continue
-				}
-				// close(lg.in)
-				break
-			}
-		}
-		break
+	for _, lg := range loggerContainer {
+		lg.shutdown()
 	}
 }
