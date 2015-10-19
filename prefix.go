@@ -54,6 +54,7 @@ func (p *Prefix) Critical(s string, args ...interface{}) {
 	p.lg.Trace(p.prefix+s, args...)
 }
 
+// 清理切片中的空字符串
 func cleanEmptyPrefixSlice(s []string) []string {
 	r := []string{}
 	for _, v := range s {
